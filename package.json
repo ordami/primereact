@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/primefaces/primereact.git"
   },
+  "main": false,
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.24.0",
@@ -45,11 +46,19 @@
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js ",
     "build-js": "react-scripts build",
-    "build": "npm-run-all build-css build-js",
+    "build": "npm-run-all build-css build-js build-resources compile-components",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "compile-components": "babel src/components --out-dir components --presets es2015,react,stage-0 --copy-files",
     "build-resources": "gulp build-resources",
     "build-exports": "gulp build-exports"
+  },
+  "jspm": {
+    "registry": "npm",
+    "format": "cjs",
+    "directories": {
+      "dist": "dist/"
+    },
+    "jspmPackage": true
   }
 }
