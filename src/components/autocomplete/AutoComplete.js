@@ -121,9 +121,10 @@ export class AutoComplete extends Component {
         }
         
         let query = event.target.value;
-        if(!this.props.multiple) {
+        // https://github.com/primefaces/primereact/issues/630
+        /*if(!this.props.multiple) {
             this.updateModel(event, query);
-        }
+        }*/
 
         if(query.length === 0) {
             this.hidePanel();
@@ -500,9 +501,10 @@ export class AutoComplete extends Component {
 
         this.searching = false;
 
-        if (this.inputEl && !this.props.multiple) {
+        // https://github.com/primefaces/primereact/issues/630
+        /*if (this.inputEl && !this.props.multiple) {
             this.updateInputField(this.props.value);
-        }
+        }*/
 
         if (this.props.tooltip && prevProps.tooltip !== this.props.tooltip) {
             if (this.tooltip)
