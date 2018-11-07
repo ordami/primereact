@@ -46,7 +46,7 @@
     "start-js": "react-scripts start",
     "start": "npm-run-all -p watch-css start-js ",
     "build-js": "react-scripts build",
-    "build": "npm-run-all build-css build-js build-resources compile-components",
+    "build": "npm-run-all build-css build-js build-resources compile-components build-exports",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "compile-components": "babel src/components --out-dir components --presets es2015,react,stage-0 --copy-files",
@@ -56,9 +56,12 @@
   "jspm": {
     "registry": "npm",
     "format": "cjs",
-    "directories": {
-      "dist": "dist/"
-    },
     "jspmPackage": true
-  }
+  },
+  "files": [
+    "components",
+	"resources",
+	"*.js",
+	"*.d.ts"
+  ]
 }
