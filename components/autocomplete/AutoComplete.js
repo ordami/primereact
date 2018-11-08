@@ -84,7 +84,7 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
 
             var query = event.target.value;
             if (!this.props.multiple) {
-                this.updateModel(event, query);
+                this.updateModelWithValue(event, query);
             }
 
             if (query.length === 0) {
@@ -142,11 +142,11 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
                 this.inputEl.value = '';
                 if (!this.isSelected(option)) {
                     var newSelection = this.props.selection ? [].concat(_toConsumableArray(this.props.selection), [option]) : [option];
-                    this.updateModel(event, newSelection);
+                    this.updateModelWithSelection(event, newSelection);
                 }
             } else {
                 this.updateInputField(option);
-                this.updateModel(event, option);
+                this.updateModelWithSelection(event, option);
             }
 
             if (this.props.onSelect) {
@@ -159,8 +159,8 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
             this.inputEl.focus();
         }
     }, {
-        key: 'updateModel',
-        value: function updateModel(event, value) {
+        key: 'updateModelWithValue',
+        value: function updateModelWithValue(event, value) {
             if (this.props.onValueChange) {
                 this.props.onValueChange({
                     originalEvent: event,
@@ -174,6 +174,11 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
                     }
                 });
             }
+        }
+    }, {
+        key: 'updateModelWithSelection',
+        value: function updateModelWithSelection(event, value) {
+            this.updateModelWithValue(event, value);
             if (this.props.onSelectionChange) {
                 this.props.onSelectionChange({
                     originalEvent: event,
@@ -283,7 +288,7 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
             var newValue = this.props.selection.filter(function (val, i) {
                 return index !== i;
             });
-            this.updateModel(event, newValue);
+            this.updateModelWithSelection(event, newValue);
 
             if (this.props.onUnselect) {
                 this.props.onUnselect({
@@ -374,7 +379,7 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
                                 });
                             }
 
-                            this.updateModel(event, newValue);
+                            this.updateModelWithSelection(event, newValue);
                         }
                         break;
 
