@@ -84,6 +84,9 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
 
             var query = event.target.value;
             if (!this.props.multiple) {
+                if (!query) {
+                    this.updateModelWithSelection(event, null);
+                }
                 this.updateModelWithValue(event, query);
             }
 
@@ -493,7 +496,11 @@ var AutoComplete = exports.AutoComplete = function (_Component) {
             this.searching = false;
 
             if (this.inputEl && !this.props.multiple) {
-                this.updateInputField(this.props.value ? this.props.value : this.props.selection);
+                if (prevProps.selection !== this.props.selection || !this.props.value) {
+                    this.updateInputField(this.props.selection);
+                } else {
+                    this.updateInputField(this.props.value);
+                }
             }
 
             if (this.props.tooltip && prevProps.tooltip !== this.props.tooltip) {
