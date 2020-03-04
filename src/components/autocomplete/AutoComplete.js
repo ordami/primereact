@@ -15,6 +15,7 @@ export class AutoComplete extends Component {
     static defaultProps = {
         id: null,
         value: null,
+        selection: null,
         name: null,
         type: 'text',
         suggestions: null,
@@ -44,7 +45,8 @@ export class AutoComplete extends Component {
         completeMethod: null,
         itemTemplate: null,
         selectedItemTemplate: null,
-        onChange: null,
+        onValueChange: null,
+        onSelectionChange: null,
         onFocus: null,
         onBlur: null,
         onSelect: null,
@@ -62,6 +64,7 @@ export class AutoComplete extends Component {
     static propTypes = {
         id: PropTypes.string,
         value: PropTypes.any,
+        selection: PropTypes.any,
         name: PropTypes.string,
         type: PropTypes.string,
         suggestions: PropTypes.array,
@@ -91,7 +94,8 @@ export class AutoComplete extends Component {
         completeMethod: PropTypes.func,
         itemTemplate: PropTypes.func,
         selectedItemTemplate: PropTypes.func,
-        onChange: PropTypes.func,
+        onValueChange: PropTypes.func,
+        onSelectionChange: PropTypes.func,
         onFocus: PropTypes.func,
         onBlur: PropTypes.func,
         onSelect: PropTypes.func,
@@ -130,8 +134,11 @@ export class AutoComplete extends Component {
         }
 
         let query = event.target.value;
-        if (!this.props.multiple) {
-            this.updateModel(event, query);
+        if(!this.props.multiple) {
+            if (!query) {
+                this.updateModelWithSelection(event, null);
+            }
+            this.updateModelWithValue(event, query);
         }
 
         if (query.length === 0) {
@@ -187,13 +194,13 @@ export class AutoComplete extends Component {
         if (this.props.multiple) {
             this.inputEl.value = '';
             if (!this.isSelected(option)) {
-                let newValue = this.props.value ? [...this.props.value, option] : [option];
-                this.updateModel(event, newValue);
+                let newSelection = this.props.selection ? [...this.props.selection, option] : [option];
+                this.updateModelWithSelection(event, newSelection);
             }
         }
         else {
             this.updateInputField(option);
-            this.updateModel(event, option);
+            this.updateModelWithSelection(event, option);
         }
 
         if (this.props.onSelect) {
@@ -206,9 +213,9 @@ export class AutoComplete extends Component {
         this.inputEl.focus();
     }
 
-    updateModel(event, value) {
-        if (this.props.onChange) {
-            this.props.onChange({
+    updateModelWithValue(event, value) {
+        if (this.props.onValueChange) {
+            this.props.onValueChange({
                 originalEvent: event,
                 value: value,
                 stopPropagation : () =>{},
@@ -220,8 +227,24 @@ export class AutoComplete extends Component {
                 }
             });
         }
-
         this.ariaSelected = value;
+    }
+
+    updateModelWithSelection(event, value) {
+      this.updateModelWithValue(event, value);
+      if (this.props.onSelectionChange) {
+          this.props.onSelectionChange({
+              originalEvent: event,
+              value: value,
+              stopPropagation : () =>{},
+              preventDefault : () =>{},
+              target: {
+                  name: this.props.name,
+                  id: this.props.id,
+                  value: value
+              }
+          });
+      }
     }
 
     formatValue(value) {
@@ -315,10 +338,10 @@ export class AutoComplete extends Component {
     }
 
     removeItem(event, index) {
-        let removedValue = this.props.value[index];
-        let newValue = this.props.value.filter((val, i) => (index !== i));
-        this.updateModel(event, newValue);
-
+        let removedValue = this.props.selection[index];
+        let newValue = this.props.selection.filter((val, i) => (index !== i));
+        this.updateModelWithSelection(event, newValue);
+        
         if (this.props.onUnselect) {
             this.props.onUnselect({
                 originalEvent: event,
@@ -397,18 +420,18 @@ export class AutoComplete extends Component {
             switch(event.which) {
                 //backspace
                 case 8:
-                    if (this.props.value && this.props.value.length && !this.inputEl.value) {
-                        let removedValue = this.props.value[this.props.value.length - 1];
-                        let newValue = this.props.value.slice(0, -1);
-
+                    if (this.props.selection && this.props.selection.length && !this.inputEl.value) {
+                        let removedValue = this.props.selection[this.props.selection.length - 1];
+                        let newValue = this.props.selection.slice(0, -1);
+                        
                         if (this.props.onUnselect) {
                             this.props.onUnselect({
                                 originalEvent: event,
                                 value: removedValue
                             })
                         }
-
-                        this.updateModel(event, newValue);
+                        
+                        this.updateModelWithSelection(event, newValue);
                     }
                 break;
 
@@ -461,9 +484,9 @@ export class AutoComplete extends Component {
 
     isSelected(val) {
         let selected = false;
-        if (this.props.value && this.props.value.length) {
-            for (let i = 0; i < this.props.value.length; i++) {
-                if (ObjectUtils.equals(this.props.value[i], val)) {
+        if (this.props.selection && this.props.selection.length) {
+            for (let i = 0; i < this.props.selection.length; i++) {
+                if (ObjectUtils.equals(this.props.selection[i], val)) {
                     selected = true;
                     break;
                 }
@@ -519,7 +542,11 @@ export class AutoComplete extends Component {
         this.searching = false;
 
         if (this.inputEl && !this.props.multiple) {
-            this.updateInputField(this.props.value);
+            if (prevProps.selection !== this.props.selection || !this.props.value) {
+                this.updateInputField(this.props.selection);
+            } else {
+                this.updateInputField(this.props.value);
+            }
         }
 
         if (prevProps.tooltip !== this.props.tooltip) {
@@ -565,8 +592,8 @@ export class AutoComplete extends Component {
     }
 
     renderChips() {
-        if (this.props.value && this.props.value.length) {
-            return this.props.value.map((val, index) => {
+        if (this.props.selection && this.props.selection.length) {
+            return this.props.selection.map((val, index) => {
                 return (
                     <li key={index + 'multi-item'} className="p-autocomplete-token p-highlight">
                         <span className="p-autocomplete-token-icon pi pi-fw pi-times" onClick={(e) => this.removeItem(e, index)}></span>
